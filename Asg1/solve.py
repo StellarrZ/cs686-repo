@@ -22,11 +22,27 @@ def a_star(init_board, hfn):
     """
     origin = State(init_board, hfn, hfn(init_board), 0)
 
+    # # debug
+    # print(hash(init_board))
+    # print(tuple(map(tuple, init_board.grid)))
+
     hp, mem = [(origin.f, origin.id, 0, origin)], set()
     while hp:
-        curF, curId, preId, cur = heappop(hp)
+        # # debug
+        # print(len(hp))
+        # print(nsmallest(min(3, len(hp)), hp))
 
 
+        _, curId, _, cur = heappop(hp)
+        if curId not in mem:
+            mem.add(curId)
+            if is_goal(cur):
+                return get_path(cur), cur.depth
+            else:
+                for suc in get_successors(cur):
+                    heappush(hp, (suc.f, suc.id, curId, suc))
+    
+    return [], -1
 
     # raise NotImplementedError
 
@@ -47,8 +63,8 @@ def dfs(init_board):
     """
     def __index_gcar(cars):
         return next(i for i, car in enumerate(cars) if car.is_goal == True)
-
-
+    
+    
     goalCoord = init_board.size - 2     # pre-defined
 
     origin = State(init_board, zero_heuristic, 0, 0)
@@ -64,7 +80,7 @@ def dfs(init_board):
         cur = st.pop()
         if cur.id not in mem:
             mem.add(cur.id)
-            if pre_goal(cur):     # tail pruning
+            if pre_goal(cur):   # tail pruning
                 return (get_path(cur) + 
                         [gen_secondary_state(cur, __index_gcar(cur.board.cars), goalCoord)], 
                         cur.depth + 1)
@@ -212,8 +228,10 @@ def blocking_heuristic(board):
     :return: The heuristic value.
     :rtype: int
     """
+    rightEnd = board.grid[2].index('>') + 1
+    return 0 if rightEnd == board.size else 7 - rightEnd - board.grid[2][rightEnd:].count('.')
 
-    raise NotImplementedError
+    # raise NotImplementedError
 
 
 def advanced_heuristic(board):
