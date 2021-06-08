@@ -84,8 +84,7 @@ def dfs(init_board):
                         [gen_secondary_state(cur, __index_gcar(cur.board.cars), goalCoord)], 
                         cur.depth + 1)
             else:
-                for suc in get_successors(cur):
-                    st.append(suc)
+                st += get_successors(cur)
     
     return [], -1
     # raise NotImplementedError

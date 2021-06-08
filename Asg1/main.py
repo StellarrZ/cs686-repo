@@ -30,22 +30,22 @@ def main():
         # #     state.board.display()
 
 
-        pathHeu, costHeu = a_star(b, blocking_heuristic)
-        print(b.name, costHeu)
-
-        print(len(pathHeu))
-        for i, state in enumerate(pathHeu, 1):
-            print(k, i, "/", len(pathHeu), "  ", state.f - state.depth, blocking_heuristic(state.board))
-            state.board.display()
-
-
-        # pathHeu, costHeu = a_star(b, advanced_heuristic)
+        # pathHeu, costHeu = a_star(b, blocking_heuristic)
         # print(b.name, costHeu)
 
         # print(len(pathHeu))
         # for i, state in enumerate(pathHeu, 1):
-        #     print(k, i, "/", len(pathHeu), "  ", state.f - state.depth, advanced_heuristic(state.board))
+        #     print(k, i, "/", len(pathHeu), "  ", state.f - state.depth, blocking_heuristic(state.board))
         #     state.board.display()
+
+
+        pathHeu, costHeu = a_star(b, advanced_heuristic)
+        print(b.name, costHeu)
+
+        print(len(pathHeu))
+        for i, state in enumerate(pathHeu, 1):
+            print(k, i, "/", len(pathHeu), "  ", state.f - state.depth, advanced_heuristic(state.board))
+            state.board.display()
 
 
 
