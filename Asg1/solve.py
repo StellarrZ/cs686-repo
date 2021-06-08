@@ -32,7 +32,6 @@ def a_star(init_board, hfn):
         # print(len(hp))
         # print(nsmallest(min(3, len(hp)), hp))
 
-
         _, curId, _, cur = heappop(hp)
         if curId not in mem:
             mem.add(curId)
@@ -112,7 +111,8 @@ def gen_secondary_state(state, carInd, secCoord):
     secondaryBoard = Board(state.board.name, state.board.size, 
                            secondaryCars)
 
-    suc = State(secondaryBoard, state.hfn, state.hfn(secondaryBoard), 
+    suc = State(secondaryBoard, state.hfn, 
+                state.hfn(secondaryBoard) + state.depth, 
                 state.depth + 1)
     
     suc.parent = state

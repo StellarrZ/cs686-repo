@@ -21,8 +21,8 @@ def main():
         # b.display()
 
 
-        pathDfs, costDfs = dfs(b)
-        print(b.name, costDfs)
+        # pathDfs, costDfs = dfs(b)
+        # print(b.name, costDfs)
 
         # # print(len(pathDfs))
         # # for i, state in enumerate(pathDfs, 1):
@@ -33,10 +33,19 @@ def main():
         # pathHeu, costHeu = a_star(b, blocking_heuristic)
         # print(b.name, costHeu)
 
-        # # print(len(pathHeu))
-        # # for i, state in enumerate(pathHeu, 1):
-        # #     print(k, i, "/", len(pathHeu))
-        # #     state.board.display()
+        # print(len(pathHeu))
+        # for i, state in enumerate(pathHeu, 1):
+        #     print(k, i, "/", len(pathHeu))
+        #     state.board.display()
+
+
+        pathHeu, costHeu = a_star(b, advanced_heuristic)
+        print(b.name, costHeu)
+
+        # print(len(pathHeu))
+        # for i, state in enumerate(pathHeu, 1):
+        #     print(k, i, "/", len(pathHeu))
+        #     state.board.display()
 
 
 
