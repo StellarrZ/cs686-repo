@@ -1,6 +1,7 @@
 from board import *
 from copy import deepcopy as cp
 from collections import deque
+from heapq import *
 
 
 def a_star(init_board, hfn):
@@ -19,9 +20,15 @@ def a_star(init_board, hfn):
     :return: (the path to goal state, solution cost)
     :rtype: List[State], int
     """
-    # origin = State(init_board, hfn, 0, 0)
+    origin = State(init_board, hfn, hfn(init_board), 0)
 
-    raise NotImplementedError
+    hp, mem = [(origin.f, origin.id, 0, origin)], set()
+    while hp:
+        curF, curId, preId, cur = heappop(hp)
+
+
+
+    # raise NotImplementedError
 
 
 def dfs(init_board):
@@ -40,9 +47,7 @@ def dfs(init_board):
     """
     def __index_gcar(cars):
         return next(i for i, car in enumerate(cars) if car.is_goal == True)
-    # for i, car in enumerate(cars):
-    #     if car.is_goal:
-    #         return i
+
 
     goalCoord = init_board.size - 2     # pre-defined
 
@@ -59,8 +64,6 @@ def dfs(init_board):
         cur = st.pop()
         if cur.id not in mem:
             mem.add(cur.id)
-            # if is_goal(cur):
-            #     return get_path(cur), cur.depth
             if pre_goal(cur):     # tail pruning
                 return (get_path(cur) + 
                         [gen_secondary_state(cur, __index_gcar(cur.board.cars), goalCoord)], 
@@ -91,7 +94,7 @@ def gen_secondary_state(state, carInd, secCoord):
     secondaryCars = cp(state.board.cars)
     secondaryCars[carInd].set_coord(secCoord)
     secondaryBoard = Board(state.board.name, state.board.size, 
-                            secondaryCars)
+                           secondaryCars)
 
     suc = State(secondaryBoard, state.hfn, state.hfn(secondaryBoard), 
                 state.depth + 1)
