@@ -112,7 +112,7 @@ def gen_secondary_state(state, carInd, secCoord):
                            secondaryCars)
 
     suc = State(secondaryBoard, state.hfn, 
-                state.hfn(secondaryBoard) + state.depth, 
+                state.hfn(secondaryBoard) + state.depth + 1, 
                 state.depth + 1)
     
     suc.parent = state
@@ -243,5 +243,52 @@ def advanced_heuristic(board):
     :return: The heuristic value.
     :rtype: int
     """
+    rightEnd = board.grid[2].index('>') + 1
+    if rightEnd == board.size:
+        return 0
 
-    raise NotImplementedError
+    ret = 1
+    for j, ch in enumerate(board.grid[2][rightEnd:], rightEnd):
+        if ch != '.':
+            cnt = 0
+            for i in range(6):
+                if board.grid[i][j] == '.':
+                    cnt += 1
+
+            if ch == '|':
+                ret += 3 - min(2, cnt)
+            else:
+                ret += 2 - min(1, cnt)
+    
+    return ret
+
+    # raise NotImplementedError
+
+
+# def coincident_heuristic(board):
+#     """
+#     An advanced heuristic of your own choosing and invention.
+
+#     :param board: The current board.
+#     :type board: Board
+#     :return: The heuristic value.
+#     :rtype: int
+#     """
+#     rightEnd = board.grid[2].index('>') + 1
+#     if rightEnd == board.size:
+#         return 0
+
+#     ret = 1
+#     for j, ch in enumerate(board.grid[2][rightEnd:], rightEnd):
+#         if ch != '.':
+#             cnt = 0
+#             for i in range(6):
+#                 if board.grid[i][j] == '.':
+#                     cnt += 1
+
+#             if ch == '|':
+#                 ret += 3 - min(2, cnt)
+#             else:
+#                 ret += 2 - min(1, cnt)
+    
+#     return ret
