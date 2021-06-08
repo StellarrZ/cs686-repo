@@ -19,6 +19,7 @@ def a_star(init_board, hfn):
     :return: (the path to goal state, solution cost)
     :rtype: List[State], int
     """
+    # origin = State(init_board, hfn, 0, 0)
 
     raise NotImplementedError
 
@@ -37,7 +38,18 @@ def dfs(init_board):
     :return: (the path to goal state, solution cost)
     :rtype: List[State], int
     """
+    def __index_gcar(cars):
+        return next(i for i, car in enumerate(cars) if car.is_goal == True)
+    # for i, car in enumerate(cars):
+    #     if car.is_goal:
+    #         return i
+
+    goalCoord = init_board.size - 2     # pre-defined
+
     origin = State(init_board, zero_heuristic, 0, 0)
+    if is_goal(origin):
+        return [origin], 0
+    
     st, mem = [origin], set()
     while st:
         # ### debug
@@ -47,14 +59,45 @@ def dfs(init_board):
         cur = st.pop()
         if cur.id not in mem:
             mem.add(cur.id)
-            if is_goal(cur):
-                return get_path(cur), cur.depth
+            # if is_goal(cur):
+            #     return get_path(cur), cur.depth
+            if pre_goal(cur):     # tail pruning
+                return (get_path(cur) + 
+                        [gen_secondary_state(cur, __index_gcar(cur.board.cars), goalCoord)], 
+                        cur.depth + 1)
             else:
                 for suc in get_successors(cur):
                     st.append(suc)
     
     return [], -1
     # raise NotImplementedError
+
+
+def gen_secondary_state(state, carInd, secCoord):
+    """
+    Self-defined module
+    Pre-request: is_goal() == False
+    Returns True if the state is `one step away from` the goal state and False otherwise.
+
+    :param state: The current state.
+    :type state: State
+    :param carInd: Index of the moving car.
+    :type carInd: int
+    :param secCoord: The secondary coordination after moving.
+    :type secCoord: int
+    :return: The secondary state.
+    :rtype: State
+    """
+    secondaryCars = cp(state.board.cars)
+    secondaryCars[carInd].set_coord(secCoord)
+    secondaryBoard = Board(state.board.name, state.board.size, 
+                            secondaryCars)
+
+    suc = State(secondaryBoard, state.hfn, state.hfn(secondaryBoard), 
+                state.depth + 1)
+    
+    suc.parent = state
+    return suc
 
 
 def get_successors(state):
@@ -82,15 +125,8 @@ def get_successors(state):
         for i in range(7 - car.length):
             section = route[min(i, car.var_coord):max(i, car.var_coord) + car.length]
             if car.var_coord != i and sum(section) == len(section):
-                secondaryCars = cp(state.board.cars)
-                secondaryCars[j].set_coord(i)
-
-                suc = State(Board(state.board.name, state.board.size, secondaryCars), 
-                            state.hfn, state.f, state.depth + 1)
-                
-                suc.parent = state
                 # f, hfn to be edited
-                ret.append(suc)
+                ret.append(gen_secondary_state(state, j, i))
 
                 # ### debug
                 # print("A")
@@ -107,9 +143,11 @@ def get_successors(state):
     # raise NotImplementedError
 
 
-def is_goal(state):
+def pre_goal(state):
     """
-    Returns True if the state is the goal state and False otherwise.
+    Self-defined module
+    Pre-request: is_goal() == False
+    Returns True if the state is `one step away from` the goal state and False otherwise.
 
     :param state: the current state.
     :type state: State
@@ -121,6 +159,18 @@ def is_goal(state):
             return True
         elif ch != '.':
             return False
+
+
+def is_goal(state):
+    """
+    Returns True if the state is the goal state and False otherwise.
+
+    :param state: the current state.
+    :type state: State
+    :return: True or False
+    :rtype: bool
+    """
+    return True if state.board.grid[2][-1] == '>' else False
 
     # raise NotImplementedError
 

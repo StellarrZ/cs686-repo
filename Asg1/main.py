@@ -6,23 +6,24 @@ from solve import *
 
 
 def main():
-    # boards = from_file("/home/z7sheng/CS686/cs686-repo/src/tst_case01.txt")
-    # boards = from_file("/home/z7sheng/CS686/cs686-repo/src/tst_case02.txt")
-    # boards = from_file("/home/z7sheng/CS686/cs686-repo/src/tst_case03.txt")
-    # boards = from_file("/home/z7sheng/CS686/cs686-repo/src/tst_case43.txt")
-    # boards = from_file("/home/z7sheng/CS686/cs686-repo/src/tst_case05.txt")
-    # boards = from_file("/home/z7sheng/CS686/cs686-repo/src/tst_case06.txt")
-    # boards = from_file("/home/z7sheng/CS686/cs686-repo/src/tst_case07.txt")
-    boards = from_file("/home/z7sheng/CS686/cs686-repo/src/jams_posted.txt")
-    for k, b in enumerate(boards):
+    # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case01.txt")
+    # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case02.txt")
+    # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case03.txt")
+    # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case43.txt")
+    # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case05.txt")
+    # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case06.txt")
+    # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case07.txt")
+    boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/jams_posted.txt")
+    for k, b in enumerate(boards, 1):
         # print(b.name)
         # print(b.grid)
         # b.display()
 
         pathDfs, costDfs = dfs(b)
         print(b.name, costDfs)
+
         # print(len(pathDfs))
-        # for i, state in enumerate(pathDfs):
+        # for i, state in enumerate(pathDfs, 1):
         #     print(k, i, "/", len(pathDfs))
         #     state.board.display()
 
