@@ -92,37 +92,6 @@ def dfs(init_board):
 
 
 
-# def dfs(init_board):
-#     """
-#     Run the DFS algorithm given an initial board.
-
-#     If the function finds a goal state, it returns a list of states representing
-#     the path from the initial state to the goal state in order and the cost of
-#     the solution found.
-#     Otherwise, it returns am empty list and -1.
-
-#     :param init_board: The initial board.
-#     :type init_board: Board
-#     :return: (the path to goal state, solution cost)
-#     :rtype: List[State], int
-#     """
-#     origin = State(init_board, zero_heuristic, 0, 0)
-    
-#     st, mem = [origin], set()
-#     while st:
-#         cur = st.pop()
-#         if cur.id not in mem:
-#             mem.add(cur.id)
-#             if is_goal(cur):
-#                 return get_path(cur), cur.depth
-#             else:
-#                 st += get_successors(cur)
-    
-#     return [], -1
-#     # raise NotImplementedError
-
-
-
 def gen_secondary_state(state, carInd, secCoord):
     """
     Self-defined module
@@ -275,26 +244,98 @@ def advanced_heuristic(board):
     :return: The heuristic value.
     :rtype: int
     """
+    def __extract(indCol):
+        raw = [board.grid[x][indCol] for x in range(6)]
+        col = [board.grid[x][indCol] != '.' for x in range(6)]
+
+        if raw[1] == '^' and raw[2] == 'v' or \
+             raw[2] == '^' and raw[3] == 'v':
+            obsLen = 2
+        elif raw[2] == 'v' and raw[1] != '|':
+            obsLen = 1
+        else:
+            obsLen = 3
+
+        return obsLen, col
+
+    
+    # class PROJ:
+    #     def __init__(self):
+    #         self.proj = set((2))
+        
+    #     def set_proj(self, col, low, high):
+    #         for x in range(low, high + 1):
+    #             if col[x]:
+    #                 self.proj.add(x)
+        
+    #     def to_set(self):
+    #         return self.proj
+
+
     rightEnd = board.grid[2].index('>') + 1
     if rightEnd == board.size:
         return 0
 
-    ret = 1
-    for j, ch in enumerate(board.grid[2][rightEnd:], rightEnd):
-        if ch != '.':
-            cnt = 0
-            for i in range(6):
-                if board.grid[i][j] == '.':
-                    cnt += 1
+    """
+    3+: ADD 3~5
+    2 : ADD min 0~1 , 3~4; priority 3~4
+    1 : ADD min 1, 3; priority 3
+    """
+    ret = 0
+    proj = set({2})
 
-            if ch == '|':
-                ret += 3 - min(2, cnt)
+    for j, obstacle in enumerate(board.grid[2][rightEnd:], rightEnd):
+        if obstacle != '.':
+            ret += 1
+            obsLen, col = __extract(j)
+            if obsLen == 1:
+                if col[1] and col[3]:
+                    proj.add(3)
+            elif obsLen == 2:
+                if col[0] + col[1] < col[3] + col[4]:
+                    if col[0]:
+                        proj.add(0)
+                    if col[1]:
+                        proj.add(1)
+                else:
+                    if col[3]:
+                        proj.add(3)
+                    if col[4]:
+                        proj.add(4)
             else:
-                ret += 2 - min(1, cnt)
+                for x in range(3, 6):
+                    if col[x]:
+                        proj.add(x)
     
+    ret += len(proj)
     return ret
 
-    # raise NotImplementedError
+            # if obstacle == '|':
+            #     ret += 3 - col[4:].count('.')
+            # elif obstacle == '^':
+            #     if board.grid[3][j] == 'v':
+            #         ret += min(3 - col[:2].count('.'), 2 - (col[4][j] == '.'))
+            #     ret += min(3 - col[:2].count('.'), 2 - min(1, col[3:].count('.')))
+            #     pass
+            # else:
+            #     pass
+
+    # ret = 1
+
+    # for j, ch in enumerate(board.grid[2][rightEnd:], rightEnd):
+    #     if ch != '.':
+    #         cnt = 0
+    #         for i in range(6):
+    #             if board.grid[i][j] == '.':
+    #                 cnt += 1
+
+    #         if ch == '|':
+    #             ret += 3 - min(2, cnt)
+    #         else:
+    #             ret += 2 - min(1, cnt)
+    
+    # return ret
+
 
 
 # def coincident_heuristic(board):
