@@ -8,7 +8,7 @@ from solve import *
 def main():
     # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case01.txt")
     # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case02.txt")
-    # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case03.txt")
+    ### boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case03.txt")
     # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case43.txt")
     # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case05.txt")
     # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case06.txt")
@@ -30,8 +30,8 @@ def main():
         #     state.board.display()
 
 
-        # pathHeu, costHeu = a_star(b, blocking_heuristic)
-        # print(b.name, costHeu)
+        pathHeu, costHeu = a_star(b, blocking_heuristic)
+        print(b.name, costHeu)
 
         # print(len(pathHeu))
         # for i, state in enumerate(pathHeu, 1):
@@ -42,10 +42,10 @@ def main():
         pathHeu, costHeu = a_star(b, advanced_heuristic)
         print(b.name, costHeu)
 
-        print(len(pathHeu))
-        for i, state in enumerate(pathHeu, 1):
-            print(k, i, "/", len(pathHeu), "  ", state.f - state.depth, advanced_heuristic(state.board))
-            state.board.display()
+        # print(len(pathHeu))
+        # for i, state in enumerate(pathHeu, 1):
+        #     print(k, i, "/", len(pathHeu), "  ", state.f - state.depth, advanced_heuristic(state.board))
+        #     state.board.display()
 
 
 
