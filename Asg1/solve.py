@@ -248,13 +248,20 @@ def advanced_heuristic(board):
         raw = [board.grid[x][indCol] for x in range(6)]
         col = [board.grid[x][indCol] != '.' for x in range(6)]
 
-        if raw[1] == '^' and raw[2] == 'v' or \
-             raw[2] == '^' and raw[3] == 'v':
+        if raw[1] == '^' and raw[2] == 'v':
             obsLen = 2
+            col[1] = False
+        elif raw[2] == '^' and raw[3] == 'v':
+            obsLen = 2
+            col[3] = False
         elif raw[2] == 'v' and raw[1] != '|':
             obsLen = 1
         else:
             obsLen = 3
+            if raw[2] == '|':
+                col[3] = False
+            elif raw[2] == '^':
+                col[3], col[4] = False, False
 
         return obsLen, col
 
