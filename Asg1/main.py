@@ -31,7 +31,7 @@ def main():
 
 
         pathHeu, costHeu = a_star(b, blocking_heuristic)
-        print(b.name, costHeu)
+        # print(b.name, costHeu)
 
         # print(len(pathHeu))
         # for i, state in enumerate(pathHeu, 1):
@@ -39,8 +39,8 @@ def main():
         #     state.board.display()
 
 
-        pathHeu, costHeu = a_star(b, advanced_heuristic)
-        print(b.name, costHeu)
+        # pathHeu, costHeu = a_star(b, advanced_heuristic)
+        # print(b.name, costHeu)
 
         # print(len(pathHeu))
         # for i, state in enumerate(pathHeu, 1):

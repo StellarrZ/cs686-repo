@@ -4,6 +4,8 @@ from collections import deque
 from heapq import *
 
 
+g_numNodes_aStar = 0
+
 def a_star(init_board, hfn):
     """
     Run the A_star search algorithm given an initial board and a heuristic function.
@@ -20,6 +22,8 @@ def a_star(init_board, hfn):
     :return: (the path to goal state, solution cost)
     :rtype: List[State], int
     """
+    global g_numNodes_aStar
+    g_numNodes_aStar = 0
     origin = State(init_board, hfn, hfn(init_board), 0)
 
     hp, mem = [(origin.f, origin.id, 0, origin)], set()
@@ -27,12 +31,15 @@ def a_star(init_board, hfn):
         _, curId, _, cur = heappop(hp)
         if curId not in mem:
             mem.add(curId)
+            g_numNodes_aStar += 1
             if is_goal(cur):
+                print(g_numNodes_aStar)     # output the num of expanded nodes
                 return get_path(cur), cur.depth
             else:
                 for suc in get_successors(cur):
                     heappush(hp, (suc.f, suc.id, curId, suc))
     
+    print(g_numNodes_aStar)     # output the num of expanded nodes
     return [], -1
 
 
