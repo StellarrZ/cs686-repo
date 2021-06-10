@@ -264,6 +264,12 @@ def advanced_heuristic(board):
                 col[3], col[4] = False, False
 
         return obsLen, col
+    
+
+    def __fuse(col, proj):
+        for x in proj:
+            col[x] = False
+        return col
 
     
     # class PROJ:
@@ -284,35 +290,44 @@ def advanced_heuristic(board):
         return 0
 
     """
-    3+: ADD 3~5
-    2 : ADD min 0~1 , 3~4; priority 3~4
-    1 : ADD min 1, 3; priority 3
+    3+: RESET 3~5
+    2 : RESET min (0~1 , 3~4)
+    1 : RESET min (1, 3)
     """
     ret = 0
     proj = set({2})
+    hpMax = []
 
     for j, obstacle in enumerate(board.grid[2][rightEnd:], rightEnd):
         if obstacle != '.':
             ret += 1
             obsLen, col = __extract(j)
-            if obsLen == 1:
-                if col[1] and col[3]:
-                    proj.add(3)
-            elif obsLen == 2:
-                if col[0] + col[1] < col[3] + col[4]:
-                    if col[0]:
-                        proj.add(0)
-                    if col[1]:
-                        proj.add(1)
-                else:
-                    if col[3]:
-                        proj.add(3)
-                    if col[4]:
-                        proj.add(4)
+            heappush(hpMax, (-obsLen, col))
+
+    while hpMax:
+
+        obsLen, col = heappop(hpMax)
+        obsLen = abs(obsLen)
+        col = __fuse(col, proj)
+
+        if obsLen == 1:
+            if col[1] and col[3]:
+                proj.add(3)
+        elif obsLen == 2:
+            if col[0] + col[1] < col[3] + col[4]:
+                if col[0]:
+                    proj.add(0)
+                if col[1]:
+                    proj.add(1)
             else:
-                for x in range(3, 6):
-                    if col[x]:
-                        proj.add(x)
+                if col[3]:
+                    proj.add(3)
+                if col[4]:
+                    proj.add(4)
+        else:
+            for x in range(3, 6):
+                if col[x]:
+                    proj.add(x)
     
     ret += len(proj)
     return ret
