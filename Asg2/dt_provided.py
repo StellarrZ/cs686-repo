@@ -1,8 +1,12 @@
+######## PLEASE DO NOT CHANGE THIS FILE ##########
+# version 1.1
+
 import csv
 import math
-import numpy as np
+import numpy as np  # numpy==1.19.2
 
 import dt_global
+
 
 def read_data(file_path: str):
     """
@@ -23,10 +27,10 @@ def read_data(file_path: str):
         # set global variables
         dt_global.feature_names = data_array[0]
         dt_global.label_index = len(dt_global.feature_names) - 1
-        dt_global.num_label_values = len(set(np.array(data_array)[:, -1]))
 
         # exclude feature name row
         data_array = data_array[1:]
+        dt_global.num_label_values = len(set(np.array(data_array)[:, -1]))
 
         # change the input feature values to floats
         for example in data_array:
