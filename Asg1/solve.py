@@ -55,12 +55,6 @@ def dfs(init_board):
     :return: (the path to goal state, solution cost)
     :rtype: List[State], int
     """
-    def __index_gcar(cars):
-        return next(i for i, car in enumerate(cars) if car.is_goal == True)
-    
-    
-    goalCoord = init_board.size - 2     # pre-defined
-
     origin = State(init_board, zero_heuristic, 0, 0)
     if is_goal(origin):
         return [origin], 0
@@ -70,14 +64,54 @@ def dfs(init_board):
         cur = st.pop()
         if cur.id not in mem:
             mem.add(cur.id)
-            if pre_goal(cur):   # tail pruning
-                return (get_path(cur) + 
-                        [gen_secondary_state(cur, __index_gcar(cur.board.cars), goalCoord)], 
-                        cur.depth + 1)
+            if is_goal(cur):
+                print(len(mem))
+                return (get_path(cur), cur.depth)
             else:
                 st += sorted(get_successors(cur), key=lambda x: -x.id)
     
     return [], -1
+
+
+
+# def dfs(init_board):
+#     """
+#     Run the DFS algorithm given an initial board.
+
+#     If the function finds a goal state, it returns a list of states representing
+#     the path from the initial state to the goal state in order and the cost of
+#     the solution found.
+#     Otherwise, it returns am empty list and -1.
+
+#     :param init_board: The initial board.
+#     :type init_board: Board
+#     :return: (the path to goal state, solution cost)
+#     :rtype: List[State], int
+#     """
+#     def __index_gcar(cars):
+#         return next(i for i, car in enumerate(cars) if car.is_goal == True)
+    
+    
+#     goalCoord = init_board.size - 2     # pre-defined
+
+#     origin = State(init_board, zero_heuristic, 0, 0)
+#     if is_goal(origin):
+#         return [origin], 0
+    
+#     st, mem = [origin], set()
+#     while st:
+#         cur = st.pop()
+#         if cur.id not in mem:
+#             mem.add(cur.id)
+#             if pre_goal(cur):   # tail pruning
+#                 print(len(mem))
+#                 return (get_path(cur) + 
+#                         [gen_secondary_state(cur, __index_gcar(cur.board.cars), goalCoord)], 
+#                         cur.depth + 1)
+#             else:
+#                 st += sorted(get_successors(cur), key=lambda x: -x.id)
+    
+#     return [], -1
 
 
 

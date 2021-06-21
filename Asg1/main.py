@@ -14,6 +14,7 @@ def main():
     # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case06.txt")
     # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case07.txt")
     # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case10.txt")
+    # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case11.txt")
     boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/jams_posted.txt")
     for k, b in enumerate(boards, 1):
         # print(b.name)
@@ -21,8 +22,10 @@ def main():
         # b.display()
 
 
-        # pathDfs, costDfs = dfs(b)
+        pathDfs, costDfs = dfs(b)
         # print(b.name, costDfs)
+
+        # print(costDfs)
 
         # print(len(pathDfs))
         # for i, state in enumerate(pathDfs, 1):
@@ -30,7 +33,7 @@ def main():
         #     state.board.display()
 
 
-        pathHeu, costHeu = a_star(b, blocking_heuristic)
+        # pathHeu, costHeu = a_star(b, blocking_heuristic)
         # print(b.name, costHeu)
 
         # print(len(pathHeu))
