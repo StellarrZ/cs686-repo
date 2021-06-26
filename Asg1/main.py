@@ -15,14 +15,15 @@ def main():
     # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case07.txt")
     # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case10.txt")
     # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/tst_case11.txt")
-    boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/jams_posted.txt")
+    # boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/jams_posted.txt")
+    boards = from_file("/home/z7sheng/CS686/cs686-repo/Asg1/argueEx01.txt")
     for k, b in enumerate(boards, 1):
         # print(b.name)
         # print(b.grid)
         # b.display()
 
 
-        pathDfs, costDfs = dfs(b)
+        # pathDfs, costDfs = dfs(b)
         # print(b.name, costDfs)
 
         # print(costDfs)
@@ -42,13 +43,14 @@ def main():
         #     state.board.display()
 
 
-        # pathHeu, costHeu = a_star(b, advanced_heuristic)
-        # print(b.name, costHeu)
+        pathHeu, costHeu = a_star(b, advanced_heuristic)
+        print(b.name + "cost =", costHeu)
 
         # print(len(pathHeu))
-        # for i, state in enumerate(pathHeu, 1):
-        #     print(k, i, "/", len(pathHeu), "  ", state.f - state.depth, advanced_heuristic(state.board))
-        #     state.board.display()
+        for i, state in enumerate(pathHeu, 1):
+            # print(k, i, "/", len(pathHeu), "  ", state.f - state.depth, advanced_heuristic(state.board))
+            print(k, i, "/", len(pathHeu), "  h(s)=%d"%advanced_heuristic(state.board))
+            state.board.display()
 
 
 
