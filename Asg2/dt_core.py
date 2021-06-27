@@ -1,10 +1,11 @@
 # version 1.1
-from math import *
+import math
 from typing import List
 from anytree import Node
 
 import dt_global as G
 
+from math import *
 from collections import defaultdict
 
 
@@ -21,15 +22,6 @@ def get_splits(examples: List, feature: str) -> List[float]:
     """ 
     indFea = G.feature_names.index(feature)
     ret = []
-
-    # regVal, regLabel, mFlag = None, None, False
-    # for row in sorted(examples, key=lambda x: (x[indFea], x[G.label_index])):
-    #     if row[indFea] == regVal and row[G.label_index] != regLabel:
-    #         mFlag = True
-    #     elif row[indFea] != regVal:
-    #         if mFlag or row[G.label_index] != regLabel:
-    #             ret.append((regVal + row[indFea]) / 2)
-    #         regVal, regLabel, mFlag = row[indFea], row[G.label_index], False
 
     table = defaultdict(set)
     for row in examples:
@@ -69,13 +61,14 @@ def choose_feature_split(examples: List, features: List[str]) -> (str, float):
             if examples[i][indFea] < midWay:
                 num += 1
         p = num / len(examples)
-        return p * log2(p) + (1 - p) * log2((1 - p))
+        return round(p * log2(p) + (1 - p) * log2((1 - p)), 6)
     
 
     regFea, regNegEnt, regMidWay = None, 0, -1
     for fea in features:
         indFea = G.feature_names.index(fea)
-        negEnt, midWay  = min([(__neg_ent(indFea, midWay), midWay) for midWay in get_splits(examples, fea)])
+        tem = [(__neg_ent(indFea, midWay), midWay) for midWay in get_splits(examples, fea)]
+        negEnt, midWay  = min(tem) if tem else (0, -1)
         if negEnt < regNegEnt:
             regFea, regNegEnt, regMidWay = fea, negEnt, midWay
 
@@ -100,8 +93,17 @@ def split_examples(examples: List, feature: str, split: float) -> (List, List):
     :return: two lists of examples split by the feature split
     :rtype: List[List[Any]], List[List[Any]]
     """ 
+    retLeft, retRight = [], []
+    indFea = G.feature_names.index(feature)
 
-    return None, None
+    for row in examples:
+        if row[indFea] < split:
+            retLeft.append(row.copy())
+        else:
+            retRight.append(row.copy())
+
+    return retLeft, retRight
+
 
 
 def split_node(cur_node: Node, examples: List, features: List[str], max_depth=math.inf):
@@ -122,6 +124,38 @@ def split_node(cur_node: Node, examples: List, features: List[str], max_depth=ma
     :param max_depth: the maximum depth of the tree
     :type max_depth: int
     """ 
+    def __get_majority():
+        count = [0] * G.num_label_values
+        for row in examples:
+            count[row[G.label_index]] += 1
+
+        return count.index(max(count))
+
+
+    # if not examples:
+    #     cur_node.decision = cur_node.pMajor
+    #     return
+    if max_depth == 0:
+        cur_node.decision = __get_majority()
+        return
+    
+    splFea, splVal = choose_feature_split(examples, features)
+    if not splFea:
+        cur_node.decision = __get_majority()
+        return
+
+    leftExs, rightExs = split_examples(examples, splFea, splVal)
+    # major = None
+    # if not leftExs or not rightExs:
+    #     major = __get_majority()
+    
+    # lchild = Node("%s/l"%cur_node.name, cur_node, feature=splFea, split=splVal, pMajor=major)
+    # rchild = Node("%s/r"%cur_node.name, cur_node, feature=splFea, split=splVal, pMajor=major)
+    lchild = Node("l-%s<%.3f"%(splFea, splVal), cur_node, feature=splFea, split=splVal)
+    rchild = Node("r-%s>%.3f"%(splFea, splVal), cur_node, feature=splFea, split=splVal)
+    split_node(lchild, leftExs, features, max_depth - 1)
+    split_node(rchild, rightExs, features, max_depth - 1)
+    
 
 
 def learn_dt(examples: List, features: List[str], max_depth=math.inf) -> Node:
