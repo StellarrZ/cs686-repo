@@ -58,7 +58,7 @@ def choose_feature_split(examples: List, features: List[str]) -> (str, float):
     def __neg_ent(indFea, midWay):
         num = 0
         for i in range(len(examples)):
-            if examples[i][indFea] < midWay:
+            if examples[i][indFea] <= midWay:
                 num += 1
         p = num / len(examples)
         return round(p * log2(p) + (1 - p) * log2((1 - p)), 6)
@@ -97,12 +97,21 @@ def split_examples(examples: List, feature: str, split: float) -> (List, List):
     indFea = G.feature_names.index(feature)
 
     for row in examples:
-        if row[indFea] < split:
+        if row[indFea] <= split:
             retLeft.append(row.copy())
         else:
             retRight.append(row.copy())
 
     return retLeft, retRight
+
+
+
+def get_majority(examples):
+    count = [0] * G.num_label_values
+    for row in examples:
+        count[row[G.label_index]] += 1
+
+    return count.index(max(count))
 
 
 
@@ -124,35 +133,29 @@ def split_node(cur_node: Node, examples: List, features: List[str], max_depth=ma
     :param max_depth: the maximum depth of the tree
     :type max_depth: int
     """ 
-    def __get_majority():
-        count = [0] * G.num_label_values
-        for row in examples:
-            count[row[G.label_index]] += 1
+    # def __get_majority():
+    #     count = [0] * G.num_label_values
+    #     for row in examples:
+    #         count[row[G.label_index]] += 1
 
-        return count.index(max(count))
+    #     return count.index(max(count))
 
 
-    # if not examples:
-    #     cur_node.decision = cur_node.pMajor
-    #     return
+    major = get_majority(examples)
     if max_depth == 0:
-        cur_node.decision = __get_majority()
+        cur_node.decision = major
         return
     
     splFea, splVal = choose_feature_split(examples, features)
     if not splFea:
-        cur_node.decision = __get_majority()
+        cur_node.decision = major
         return
 
+    cur_node.major, cur_node.numExs = major, len(examples)
+    cur_node.feature, cur_node.split = splFea, splVal
     leftExs, rightExs = split_examples(examples, splFea, splVal)
-    # major = None
-    # if not leftExs or not rightExs:
-    #     major = __get_majority()
-    
-    # lchild = Node("%s/l"%cur_node.name, cur_node, feature=splFea, split=splVal, pMajor=major)
-    # rchild = Node("%s/r"%cur_node.name, cur_node, feature=splFea, split=splVal, pMajor=major)
-    lchild = Node("l-%s<%.3f"%(splFea, splVal), cur_node, feature=splFea, split=splVal)
-    rchild = Node("r-%s>%.3f"%(splFea, splVal), cur_node, feature=splFea, split=splVal)
+    lchild = Node("l-%s<%.3f"%(splFea, splVal), cur_node, depth=cur_node.depth + 1)
+    rchild = Node("r-%s>%.3f"%(splFea, splVal), cur_node, depth=cur_node.depth + 1)
     split_node(lchild, leftExs, features, max_depth - 1)
     split_node(rchild, rightExs, features, max_depth - 1)
     
@@ -179,8 +182,10 @@ def learn_dt(examples: List, features: List[str], max_depth=math.inf) -> Node:
     :return: the root of the tree
     :rtype: Node
     """ 
+    root = Node("root", depth=0)
+    split_node(root, examples, features, max_depth)
+    return root
 
-    return None
 
 
 def predict(cur_node: Node, example, max_depth=math.inf, \
@@ -211,8 +216,15 @@ def predict(cur_node: Node, example, max_depth=math.inf, \
     :return: the decision for the given example
     :rtype: int
     """ 
+    if cur_node.is_leaf:
+        return cur_node.decision
+    elif max_depth <= 0 or cur_node.numExs < min_num_examples:
+        return cur_node.major
+    
+    indFea = G.feature_names.index(cur_node.feature)
+    nextNode = cur_node.children[0] if example[indFea] <= cur_node.split else cur_node.children[1]
+    return predict(nextNode, example, max_depth - 1, min_num_examples)
 
-    return -1
 
 
 def get_prediction_accuracy(cur_node: Node, examples: List, max_depth=math.inf, \
@@ -235,8 +247,13 @@ def get_prediction_accuracy(cur_node: Node, examples: List, max_depth=math.inf, 
     :return: the prediction accuracy for the examples based on the cur_node
     :rtype: float
     """ 
+    accNum = 0
+    for row in examples:
+        if predict(cur_node, row[:-1], max_depth, min_num_examples) == row[-1]:
+            accNum += 1
 
-    return -1
+    return accNum / len(examples)
+
 
 
 def post_prune(cur_node: Node, min_num_examples: float):
