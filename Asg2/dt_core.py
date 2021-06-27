@@ -1,9 +1,11 @@
 # version 1.1
-import math
+from math import *
 from typing import List
 from anytree import Node
 
-import dt_global 
+import dt_global as G
+
+from collections import defaultdict
 
 
 def get_splits(examples: List, feature: str) -> List[float]:
@@ -17,8 +19,30 @@ def get_splits(examples: List, feature: str) -> List[float]:
     :return: a list of potential split point values 
     :rtype: List[float]
     """ 
+    indFea = G.feature_names.index(feature)
+    ret = []
 
-    return None
+    # regVal, regLabel, mFlag = None, None, False
+    # for row in sorted(examples, key=lambda x: (x[indFea], x[G.label_index])):
+    #     if row[indFea] == regVal and row[G.label_index] != regLabel:
+    #         mFlag = True
+    #     elif row[indFea] != regVal:
+    #         if mFlag or row[G.label_index] != regLabel:
+    #             ret.append((regVal + row[indFea]) / 2)
+    #         regVal, regLabel, mFlag = row[indFea], row[G.label_index], False
+
+    table = defaultdict(set)
+    for row in examples:
+        table[row[indFea]].add(row[G.label_index])
+    
+    regVal, regLabs = None, set()
+    for i, key in enumerate(sorted(table.keys())):
+        if i != 0 and (len(regLabs) + len(table[key]) > 2 or table[key] != regLabs):
+            ret.append((regVal + key) / 2)
+        regVal, regLabs = key, table[key]
+
+    return ret
+
 
 
 def choose_feature_split(examples: List, features: List[str]) -> (str, float):
@@ -39,8 +63,24 @@ def choose_feature_split(examples: List, features: List[str]) -> (str, float):
     :return: the best feature and the best split value
     :rtype: str, float
     """   
+    def __neg_ent(indFea, midWay):
+        num = 0
+        for i in range(len(examples)):
+            if examples[i][indFea] < midWay:
+                num += 1
+        p = num / len(examples)
+        return p * log2(p) + (1 - p) * log2((1 - p))
+    
 
-    return None, -1
+    regFea, regNegEnt, regMidWay = None, 0, -1
+    for fea in features:
+        indFea = G.feature_names.index(fea)
+        negEnt, midWay  = min([(__neg_ent(indFea, midWay), midWay) for midWay in get_splits(examples, fea)])
+        if negEnt < regNegEnt:
+            regFea, regNegEnt, regMidWay = fea, negEnt, midWay
+
+    return regFea, regMidWay
+
 
 
 def split_examples(examples: List, feature: str, split: float) -> (List, List):
