@@ -56,12 +56,19 @@ def choose_feature_split(examples: List, features: List[str]) -> (str, float):
     :rtype: str, float
     """   
     def __neg_ent(indFea, midWay):
-        num = 0
+        # num = 0
+        # for i in range(len(examples)):
+        #     if examples[i][indFea] <= midWay:
+        #         num += 1
+        # p = num / len(examples)
+        # return round(p * log2(p) + (1 - p) * log2((1 - p)), 6)
+
+        count = defaultdict(lambda: 0)
         for i in range(len(examples)):
             if examples[i][indFea] <= midWay:
-                num += 1
-        p = num / len(examples)
-        return round(p * log2(p) + (1 - p) * log2((1 - p)), 6)
+                count[examples[i][G.label_index]] += 1
+        pList = [num / len(examples) for num in count.values()]
+        return round(sum(list(map(lambda p: p * log2(p), pList))), 6)
     
 
     regFea, regNegEnt, regMidWay = None, 0, -1
@@ -281,5 +288,10 @@ def post_prune(cur_node: Node, min_num_examples: float):
     :param min_num_examples: the minimum number of examples
     :type min_num_examples: float
     """
+    # post
+    if cur_node.is_leaf():
+        return
+    
+    
 
     # if cur_node.is_leaf() or cur_node.children[0] and 
