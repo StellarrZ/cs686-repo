@@ -73,8 +73,10 @@ def choose_feature_split(examples: List, features: List[str]) -> (str, float):
         pLeft = sum(countL.values()) / len(examples)
         pListL = [num / sumL for num in countL.values()]
         pListR = [num / sumR for num in countR.values()]
+        pListT = [(countL[key] + countR[key]) / (sumL + sumR) for key in set(countL.keys()).union(countR.keys())]
         
-        return round(sum(list(map(lambda p: p * log2(p), pListL))) * pLeft + 
+        return round(sum(list(map(lambda p: p * log2(p), pListT))) -
+                     sum(list(map(lambda p: p * log2(p), pListL))) * pLeft - 
                      sum(list(map(lambda p: p * log2(p), pListR))) * (1 - pLeft), 6)
     
 
