@@ -88,7 +88,7 @@ def choose_feature_split(examples: List, features: List[str]) -> (str, float):
         if negEnt < regNegEnt:
             regFea, regNegEnt, regMidWay = fea, negEnt, midWay
 
-    return regFea, round(regMidWay, 6)
+    return regFea, regMidWay
 
 
 
@@ -297,7 +297,7 @@ def post_prune(cur_node: Node, min_num_examples: float):
     :param min_num_examples: the minimum number of examples
     :type min_num_examples: float
     """
-    if cur_node.is_leaf():
+    if cur_node.is_leaf:
         return
     
     post_prune(cur_node.children[0], min_num_examples)
