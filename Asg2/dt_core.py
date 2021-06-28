@@ -56,13 +56,6 @@ def choose_feature_split(examples: List, features: List[str]) -> (str, float):
     :rtype: str, float
     """   
     def __neg_ent(indFea, midWay):
-        # num = 0
-        # for i in range(len(examples)):
-        #     if examples[i][indFea] <= midWay:
-        #         num += 1
-        # p = num / len(examples)
-        # return round(p * log2(p) + (1 - p) * log2((1 - p)), 6)
-
         countL, countR = defaultdict(lambda: 0), defaultdict(lambda: 0)
         for i in range(len(examples)):
             if examples[i][indFea] <= midWay:
@@ -123,12 +116,6 @@ def split_examples(examples: List, feature: str, split: float) -> (List, List):
 
 
 def get_majority(examples):
-    # count = [0] * G.num_label_values
-    # for row in examples:
-    #     count[row[G.label_index]] += 1
-
-    # return count.index(max(count))
-
     count = defaultdict(lambda: 0)
     for row in examples:
         count[row[G.label_index]] -= 1
@@ -155,14 +142,6 @@ def split_node(cur_node: Node, examples: List, features: List[str], max_depth=ma
     :param max_depth: the maximum depth of the tree
     :type max_depth: int
     """ 
-    # def __get_majority():
-    #     count = [0] * G.num_label_values
-    #     for row in examples:
-    #         count[row[G.label_index]] += 1
-
-    #     return count.index(max(count))
-
-
     major = get_majority(examples)
     if max_depth == 0:
         cur_node.decision = major
