@@ -63,12 +63,19 @@ def choose_feature_split(examples: List, features: List[str]) -> (str, float):
         # p = num / len(examples)
         # return round(p * log2(p) + (1 - p) * log2((1 - p)), 6)
 
-        count = defaultdict(lambda: 0)
+        countL, countR = defaultdict(lambda: 0), defaultdict(lambda: 0)
         for i in range(len(examples)):
             if examples[i][indFea] <= midWay:
-                count[examples[i][G.label_index]] += 1
-        pList = [num / len(examples) for num in count.values()]
-        return round(sum(list(map(lambda p: p * log2(p), pList))), 6)
+                countL[examples[i][G.label_index]] += 1
+            else:
+                countR[examples[i][G.label_index]] += 1
+        sumL, sumR = sum(countL.values()), sum(countR.values())
+        pLeft = sum(countL.values()) / len(examples)
+        pListL = [num / sumL for num in countL.values()]
+        pListR = [num / sumR for num in countR.values()]
+        
+        return round(sum(list(map(lambda p: p * log2(p), pListL))) * pLeft + 
+                     sum(list(map(lambda p: p * log2(p), pListR))) * (1 - pLeft), 6)
     
 
     regFea, regNegEnt, regMidWay = None, 0, -1
