@@ -107,11 +107,17 @@ def split_examples(examples: List, feature: str, split: float) -> (List, List):
 
 
 def get_majority(examples):
-    count = [0] * G.num_label_values
-    for row in examples:
-        count[row[G.label_index]] += 1
+    # count = [0] * G.num_label_values
+    # for row in examples:
+    #     count[row[G.label_index]] += 1
 
-    return count.index(max(count))
+    # return count.index(max(count))
+
+    count = defaultdict(lambda: 0)
+    for row in examples:
+        count[row[G.label_index]] -= 1
+    
+    return min([(count[x], x) for x in count])[1]
 
 
 
@@ -275,3 +281,5 @@ def post_prune(cur_node: Node, min_num_examples: float):
     :param min_num_examples: the minimum number of examples
     :type min_num_examples: float
     """
+
+    # if cur_node.is_leaf() or cur_node.children[0] and 
