@@ -301,8 +301,8 @@ def post_prune(cur_node: Node, min_num_examples: float):
         post_prune(cur_node.children[0], min_num_examples)
         post_prune(cur_node.children[1], min_num_examples)
 
-        if cur_node.children[0].is_leaf() and \
-           cur_node.children[1].is_leaf() and \
+        if cur_node.children[0].is_leaf and \
+           cur_node.children[1].is_leaf and \
            cur_node.numExs < min_num_examples:
             cur_node.decision = cur_node.major
             del cur_node.children
