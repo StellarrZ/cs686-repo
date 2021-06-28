@@ -297,14 +297,12 @@ def post_prune(cur_node: Node, min_num_examples: float):
     :param min_num_examples: the minimum number of examples
     :type min_num_examples: float
     """
-    if cur_node.is_leaf:
-        return
-    
-    post_prune(cur_node.children[0], min_num_examples)
-    post_prune(cur_node.children[1], min_num_examples)
+    if not cur_node.is_leaf:    
+        post_prune(cur_node.children[0], min_num_examples)
+        post_prune(cur_node.children[1], min_num_examples)
 
-    if cur_node.children[0].is_leaf() and \
-       cur_node.children[1].is_leaf() and \
-       cur_node.numExs < min_num_examples:
-       cur_node.decision = cur_node.major
-       del cur_node.children
+        if cur_node.children[0].is_leaf() and \
+           cur_node.children[1].is_leaf() and \
+           cur_node.numExs < min_num_examples:
+            cur_node.decision = cur_node.major
+            del cur_node.children
