@@ -88,7 +88,7 @@ def choose_feature_split(examples: List, features: List[str]) -> (str, float):
         if negEnt < regNegEnt:
             regFea, regNegEnt, regMidWay = fea, negEnt, midWay
 
-    return regFea, regMidWay
+    return regFea, round(regMidWay, 6)
 
 
 
@@ -176,8 +176,8 @@ def split_node(cur_node: Node, examples: List, features: List[str], max_depth=ma
     cur_node.major, cur_node.numExs = major, len(examples)
     cur_node.feature, cur_node.split = splFea, splVal
     leftExs, rightExs = split_examples(examples, splFea, splVal)
-    lchild = Node("l-%s<%.3f"%(splFea, splVal), cur_node, depth=cur_node.depth + 1)
-    rchild = Node("r-%s>%.3f"%(splFea, splVal), cur_node, depth=cur_node.depth + 1)
+    lchild = Node(" %s<%.3f "%(splFea, splVal), cur_node, depth=cur_node.depth + 1)
+    rchild = Node(" %s>%.3f "%(splFea, splVal), cur_node, depth=cur_node.depth + 1)
     split_node(lchild, leftExs, features, max_depth - 1)
     split_node(rchild, rightExs, features, max_depth - 1)
     
@@ -297,10 +297,14 @@ def post_prune(cur_node: Node, min_num_examples: float):
     :param min_num_examples: the minimum number of examples
     :type min_num_examples: float
     """
-    # post
     if cur_node.is_leaf():
         return
     
-    
+    post_prune(cur_node.children[0], min_num_examples)
+    post_prune(cur_node.children[1], min_num_examples)
 
-    # if cur_node.is_leaf() or cur_node.children[0] and 
+    if cur_node.children[0].is_leaf() and \
+       cur_node.children[1].is_leaf() and \
+       cur_node.numExs < min_num_examples:
+       cur_node.decision = cur_node.major
+       del cur_node.children
