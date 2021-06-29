@@ -1,15 +1,13 @@
-import math
-from typing import List
-from anytree import Node, RenderTree
-import dt_global as G
+import argparse
+import time
 from math import *
-from collections import defaultdict
-from itertools import chain
-from dt_core import *
+from anytree import Node, RenderTree
+from typing import List
+import dt_global as G
 from dt_provided import *
-import csv
-import numpy as np  # numpy==1.19.2
-import dt_global
+from dt_core import *
+from dt_cv import *
+
 
 
 def get_depth(cur):
@@ -22,12 +20,31 @@ def get_depth(cur):
 
 def main():
     data = read_data("./data.csv")
-    full = Node("root", depth=0)
+    folds = preprocess(data)
 
-    split_node(full, data, G.feature_names[:-1])
-    print(RenderTree(full))
+    if not args.prof:
+        full = learn_dt(data, G.feature_names[:-1])
+        print(RenderTree(full))
+    else:
+        start = time.time()
+        fullProf = learn_dt(data, G.feature_names[:-1])
+        end = time.time()
+        print("Generate fullTree: %.6f s"%(end - start))
+
+        start = time.time()
+        trainAcc_pre, valiAcc_pre = cv_pre_prune(folds, list(range(31)))
+        end = time.time()
+        print("CV pre-prune [0:1:30]: %.6f s"%(end - start))
+
+        start = time.time()
+        trainAcc_post, valiAcc_post = cv_post_prune(folds, list(range(0, 301, 20)))
+        end = time.time()
+        print("CV post-prune [0:20:301]: %.6f s"%(end - start))
 
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--prof", type=int, default=0)
+    args = parser.parse_args()
     main()
