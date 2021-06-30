@@ -30,7 +30,7 @@ def get_splits(examples: List, feature: str) -> List[float]:
     regVal, regLabs = None, set()
     for i, key in enumerate(sorted(table.keys())):
         if i != 0 and (len(regLabs) + len(table[key]) > 2 or table[key] != regLabs):
-            ret.append((regVal + key) / 2)
+            ret.append(round((regVal + key) / 2, 6))    # May cause issues due to numerical accuracy
         regVal, regLabs = key, table[key]
 
     return ret
