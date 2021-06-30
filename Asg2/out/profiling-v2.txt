@@ -1,13 +1,14 @@
 
 Profiling Results
 ========================================
-  Generate fullTree:        0.401477 s
-  CV pre-prune [0:1:31]:    5.609482 s
-  CV post-prune [0:20:301]: 4.412406 s
+  Generate fullTree:        0.402529 s
+  CV pre-prune [0:1:31]:    5.578145 s
+  CV post-prune [0:20:301]: 4.405827 s
 ========================================
 
 Tuning Results
 ========================================
+  FullTree depth:   20
   Best maxDepth:    7
   Vali-Accuracy:    0.5788229018492175
   Best minExamples: 60

@@ -46,6 +46,7 @@ def main():
 
         print("\nTuning Results")
         print("========================================")
+        print("  FullTree depth:  ", get_depth(fullProf))
         print("  Best maxDepth:   ", valiAcc_pre.index(max(valiAcc_pre)))
         print("  Vali-Accuracy:   ", max(valiAcc_pre))
         print("  Best minExamples:", valiAcc_post.index(max(valiAcc_post)) * 20)
