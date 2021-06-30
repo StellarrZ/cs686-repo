@@ -1,0 +1,16 @@
+
+Profiling Results
+========================================
+  Generate fullTree:        0.442589 s
+  CV pre-prune [0:1:31]:    5.985242 s
+  CV post-prune [0:20:301]: 4.814430 s
+========================================
+
+Tuning Results
+========================================
+  FullTree depth:   20
+  Best maxDepth:    7
+  Vali-Accuracy:    0.5788229018492175
+  Best minExamples: 60
+  Vali-Accuracy:    0.5807965860597439
+========================================

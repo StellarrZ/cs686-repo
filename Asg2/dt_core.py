@@ -30,7 +30,7 @@ def get_splits(examples: List, feature: str) -> List[float]:
     regVal, regLabs = None, set()
     for i, key in enumerate(sorted(table.keys())):
         if i != 0 and (len(regLabs) + len(table[key]) > 2 or table[key] != regLabs):
-            ret.append(round((regVal + key) / 2, 6))    # May cause issues due to numerical accuracy
+            ret.append((regVal + key) / 2)
         regVal, regLabs = key, table[key]
 
     return ret
@@ -58,7 +58,7 @@ def choose_feature_split(examples: List, features: List[str]) -> (str, float):
     def __neg_ent(indFea, midWay):
         countL, countR = defaultdict(lambda: 0), defaultdict(lambda: 0)
         for i in range(len(examples)):
-            if examples[i][indFea] <= midWay:
+            if examples[i][indFea] <= midWay or isclose(examples[i][indFea], midWay, rel_tol=1e-5):
                 countL[examples[i][G.label_index]] += 1
             else:
                 countR[examples[i][G.label_index]] += 1
@@ -70,7 +70,7 @@ def choose_feature_split(examples: List, features: List[str]) -> (str, float):
         
         return round(sum(list(map(lambda p: p * log2(p), pListT))) -
                      sum(list(map(lambda p: p * log2(p), pListL))) * pLeft - 
-                     sum(list(map(lambda p: p * log2(p), pListR))) * (1 - pLeft), 6)
+                     sum(list(map(lambda p: p * log2(p), pListR))) * (1 - pLeft), 5)
     
 
     regFea, regNegEnt, regMidWay = None, 0, -1
@@ -106,7 +106,7 @@ def split_examples(examples: List, feature: str, split: float) -> (List, List):
     indFea = G.feature_names.index(feature)
 
     for row in examples:
-        if row[indFea] <= split:
+        if row[indFea] <= split or isclose(row[indFea], split, rel_tol=1e-5):
             retLeft.append(row.copy())
         else:
             retRight.append(row.copy())
@@ -223,7 +223,9 @@ def predict(cur_node: Node, example, max_depth=math.inf, \
         return cur_node.major
     
     indFea = G.feature_names.index(cur_node.feature)
-    nextNode = cur_node.children[0] if example[indFea] <= cur_node.split else cur_node.children[1]
+    nextNode = cur_node.children[0] if (example[indFea] <= cur_node.split or \
+                                        isclose(example[indFea], cur_node.split, rel_tol=1e-5)) \
+                                    else cur_node.children[1]
     return predict(nextNode, example, max_depth - 1, min_num_examples)
 
 
