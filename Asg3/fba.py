@@ -69,13 +69,17 @@ def forward_recursion(env: Environment, actions: List[int], observ: List[int], \
     '''
     
     ### YOUR CODE HERE ###
+    tNum = len(observ)
     create_observation_matrix(env)
     create_transition_matrices(env)
 
     f = [norm(env.observe_matrix[:, observ[0]] * probs_init)]
+
+    for t in range(tNum - 1):
+        f.append(norm( env.observe_matrix[:, observ[t + 1]] * 
+                       sum(env.transition_matrices[actions[t]] * f[-1]) ))
     
-    
-    return None
+    return np.array(f)
 
 
 def backward_recursion(env: Environment, actions: List[int], observ: List[int] \
