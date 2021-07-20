@@ -15,7 +15,7 @@ def create_observation_matrix(env: Environment):
     '''
 
     #### Your Code Here ####
-    pass
+    env.observe_matrix = np.array([env.observe_probs[x] for x in env.state_types])
 
 
 def create_transition_matrices(env: Environment):
@@ -33,7 +33,23 @@ def create_transition_matrices(env: Environment):
         return
 
     #### Your Code Here ####
-    pass
+    dim = env.num_states
+    transMat = []
+    for acts in env.action_effects:
+        cube = np.zeros([dim, dim])
+        for delta, p in acts.items():
+            for j in range(dim):
+                cube[j, (j + delta + dim) % dim] = p
+        transMat.append(cube)
+    
+    env.transition_matrices = np.array(transMat)
+
+
+def norm(mat):
+    if len((mat.shape)) == 1:
+        return mat / sum(mat)
+    else:
+        return np.array(list(map(lambda x: x / sum(x), mat)))
 
 
 def forward_recursion(env: Environment, actions: List[int], observ: List[int], \
@@ -53,6 +69,11 @@ def forward_recursion(env: Environment, actions: List[int], observ: List[int], \
     '''
     
     ### YOUR CODE HERE ###
+    create_observation_matrix(env)
+    create_transition_matrices(env)
+
+    f = [norm(env.observe_matrix[:, observ[0]] * probs_init)]
+    
     
     return None
 
