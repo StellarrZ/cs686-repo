@@ -2,6 +2,7 @@
 
 import numpy as np
 from typing import List, Dict
+from collections import deque
 
 from utils_soln import *
 
@@ -69,13 +70,9 @@ def forward_recursion(env: Environment, actions: List[int], observ: List[int], \
     '''
     
     ### YOUR CODE HERE ###
-    tNum = len(observ)
-    create_observation_matrix(env)
-    create_transition_matrices(env)
-
     f = [norm(env.observe_matrix[:, observ[0]] * probs_init)]
 
-    for t in range(tNum - 1):
+    for t in range(len(observ) - 1):
         f.append(norm( env.observe_matrix[:, observ[t + 1]] * 
                        sum(env.transition_matrices[actions[t]] * f[-1]) ))
     
@@ -99,7 +96,14 @@ def backward_recursion(env: Environment, actions: List[int], observ: List[int] \
     '''
 
     ### YOUR CODE HERE ###
-    return None
+    b = deque(np.ones(env.num_states))
+
+    for t in range(len(observ) - 2, -1, -1):
+        b.appendleft( np.sum(env.observe_matrix[:, observ[t + 1]] * b[0] * 
+                             env.transition_matrices[actions[t]], axis=1) )
+
+    b.appendleft(np.zeros(env.num_states))
+    return np.array(b)
 
 
 def fba(env: Environment, actions: List[int], observ: List[int], \
@@ -119,5 +123,11 @@ def fba(env: Environment, actions: List[int], observ: List[int], \
     '''
 
     ### YOUR CODE HERE ###
-    return None
+    create_observation_matrix(env)
+    create_transition_matrices(env)
+
+    fMat = forward_recursion(env, actions, observ, probs_init)
+    bMat = backward_recursion(env, actions, observ)
+
+    return norm(fMat * bMat[1:])
 
