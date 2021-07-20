@@ -102,7 +102,7 @@ def backward_recursion(env: Environment, actions: List[int], observ: List[int] \
         b.appendleft( np.sum(env.observe_matrix[:, observ[t + 1]] * b[0] * 
                              env.transition_matrices[actions[t]], axis=1) )
 
-    b.appendleft(np.zeros(env.num_states))
+    b.appendleft(np.zeros([1, env.num_states]))
     return np.array(b)
 
 
