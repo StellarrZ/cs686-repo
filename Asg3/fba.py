@@ -77,7 +77,7 @@ def forward_recursion(env: Environment, actions: List[int], observ: List[int], \
 
     for t in range(len(observ) - 1):
         f.append(norm( env.observe_matrix[:, observ[t + 1]] * 
-                       np.matmal(env.transition_matrices[actions[t]], f[-1]) ))
+                       np.matmul(env.transition_matrices[actions[t]], f[-1]) ))
     
     return np.array(f)
 
