@@ -1,6 +1,7 @@
 from rl_provided import *
 import numpy as np
 from typing import Tuple, List
+from copy import deepcopy as cp
 
 
 def get_transition_prob(n_sa, n_sas, curr_state: State, dir_intended: int, next_state: State) -> float:
@@ -11,7 +12,7 @@ def get_transition_prob(n_sa, n_sas, curr_state: State, dir_intended: int, next_
     @return: 0 if we haven't visited the state-action pair yet (i.e. N_sa = 0).
       Otherwise, return N_sas' / N_sa.
     """
-    pass
+    return 0 if n_sa[curr_state][dir_intended] == 0 else n_sas[curr_state][dir_intended][next_state] / n_sa[curr_state][dir_intended]
 
 
 def exp_utils(world, utils, n_sa, n_sas, curr_state: State) -> List[float]:
@@ -23,7 +24,15 @@ def exp_utils(world, utils, n_sa, n_sas, curr_state: State) -> List[float]:
     in this order.  For example, the third element of the array is the expected utility
     if the agent ends up going down from the current state.
     """
-    pass
+    ret = []
+    secondaries = set(get_next_states(world.grid, curr_state))
+    for a in range(4):
+        utility = 0
+        for next_state in secondaries:
+            utility += get_transition_prob(n_sa, n_sas, curr_state, a, next_state) * utils[next_state]
+        ret.append(utility)
+    
+    return ret
 
 
 def optimistic_exp_utils(world, utils, n_sa, n_sas, curr_state: State, n_e: int, r_plus: float) -> List[float]:
@@ -35,7 +44,12 @@ def optimistic_exp_utils(world, utils, n_sa, n_sas, curr_state: State, n_e: int,
     in this order.  For example, the third element of the array is the optimistic expected utility
     if the agent ends up going down from the current state.
     """
-    pass
+    ret = exp_utils(world, utils, n_sa, n_sas, curr_state)
+    for a in range(4):
+        if n_sa[curr_state][a] < n_e:
+            ret[a] = r_plus
+    
+    return ret
 
 
 def update_utils(world, utils, n_sa, n_sas, n_e: int, r_plus: float) -> np.ndarray:
@@ -45,14 +59,26 @@ def update_utils(world, utils, n_sa, n_sas, n_e: int, r_plus: float) -> np.ndarr
     @return: The updated utility values.
     @rtype: An `np.ndarray` of size `world.grid.shape` of type `float`.
     """
-    pass
+    shape = world.grid.shape
+    pre, cur = float("inf"), cp(utils)
+    while not utils_converged(pre, cur):
+        pre, cur = cur, np.zeros(shape, dtype=float)
+        for i in range(shape[0]):
+            for j in range(shape[1]):
+                if is_goal(world.grid, (i, j)):
+                    cur[i, j] = pre[i, j]
+                elif not is_wall(world.grid, (i, j)):
+                    exps = optimistic_exp_utils(world, pre, n_sa, n_sas, (i, j), n_e, r_plus)
+                    cur[i, j] = world.reward + world.discount * exps[np.argmax(exps)]
+    
+    return cur
 
 
 def get_best_action(world, utils, n_sa, n_sas, curr_state: State, n_e: int, r_plus: float) -> int:
     """
     @return: The best action, based on the agent's current understanding of the world, to perform in `curr_state`.
     """
-    pass
+    return int(np.argmax(optimistic_exp_utils(world, utils, n_sa, n_sas, curr_state, n_e, r_plus)))
 
 
 def adpa_move(world, utils, n_sa, n_sas, curr_state: State, n_e: int, r_plus: float) -> Tuple[State, np.ndarray]:
@@ -69,7 +95,11 @@ def adpa_move(world, utils, n_sa, n_sas, curr_state: State, n_e: int, r_plus: fl
     @rtype: A tuple (next_state, next_utils), where:
      - next_utils is an `np.ndarray` of size `world.grid.shape` of type `float`
     """
-    pass
+    a = get_best_action(world, utils, n_sa, n_sas, curr_state, n_e, r_plus)
+    next_state = world.make_move_det(a, n_sa)
+    n_sa[curr_state][a] += 1
+    n_sas[curr_state][a][next_state] += 1
+    return a, update_utils(world, utils, n_sa, n_sas, n_e, r_plus)
 
 
 def utils_to_policy(world, utils, n_sa, n_sas) -> np.ndarray:
@@ -80,14 +110,26 @@ def utils_to_policy(world, utils, n_sa, n_sas) -> np.ndarray:
     # Initialize the policy.
     policy = np.zeros(world.grid.shape, dtype=int)
 
-    pass
+    shape = world.grid.shape
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            if not_goal_nor_wall(world.grid, (i, j)):
+                policy[i, j] = int(np.argmax(exp_utils(world, utils, n_sa, n_sas, (i, j))))
+    
+    return policy
 
 
 def is_done_exploring(n_sa, grid, n_e: int) -> bool:
     """
     @return: True when the agent has visited each state-action pair at least `n_e` times.
     """
-    pass
+    shape = grid.shape
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            if not_goal_nor_wall(grid, (i, j)) and np.min(n_sa[i, j]) < n_e:
+                return False
+    
+    return True
 
 
 def adpa(world_name: str, n_e: int, r_plus: float) -> np.ndarray:
@@ -114,4 +156,14 @@ def adpa(world_name: str, n_e: int, r_plus: float) -> np.ndarray:
     n_sa = np.zeros((*grid.shape, num_actions))
     n_sas = np.zeros((*grid.shape, num_actions, *grid.shape))
 
-    pass
+    shape = grid.shape
+    for i in range(shape[0]):
+        for j in range(shape[1]):
+            if is_goal(grid, (i, j)):
+                utils[i, j] = grid[i, j]
+
+    cur = utils
+    while not is_done_exploring(n_sa, grid, n_e):
+        a, cur = adpa_move(world, cur, n_sa, n_sas, world.curr_state, n_e, r_plus)
+
+    return cur
