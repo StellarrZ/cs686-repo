@@ -99,7 +99,7 @@ def adpa_move(world, utils, n_sa, n_sas, curr_state: State, n_e: int, r_plus: fl
     next_state = world.make_move_det(a, n_sa)
     n_sa[curr_state][a] += 1
     n_sas[curr_state][a][next_state] += 1
-    return a, update_utils(world, utils, n_sa, n_sas, n_e, r_plus)
+    return next_state, update_utils(world, utils, n_sa, n_sas, n_e, r_plus)
 
 
 def utils_to_policy(world, utils, n_sa, n_sas) -> np.ndarray:
